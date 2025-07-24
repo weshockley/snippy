@@ -34,17 +34,19 @@ param embeddingModelName string = 'text-embedding-3-small'
 import * as regionSelector from './app/util/region-selector.bicep'
 var abbrs = loadJsonContent('./abbreviations.json')
 
-var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+// var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+var resourcePrefix = 'snippy'
+var labInstance = last(split(environmentName, '-'))
+var resourceToken = 'snippymcplab${labInstance}'
 var tags = { 'azd-env-name': environmentName }
 var functionAppName = !empty(apiServiceName) ? apiServiceName : '${abbrs.webSitesFunctions}api-${resourceToken}'
 var deploymentStorageContainerName = 'app-package-${take(functionAppName, 32)}-${take(toLower(uniqueString(functionAppName, resourceToken)), 7)}'
 
 var storageAccountActualName = !empty(storageAccountName) ? storageAccountName : '${abbrs.storageStorageAccounts}${resourceToken}'
-
 // Organize resources in a resource group
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: !empty(resourceGroupName) ? resourceGroupName : '${abbrs.resourcesResourceGroups}${environmentName}'
-  location: location
+  name: !empty(resourceGroupName) ? resourceGroupName : 'rg-snippymcplab'  
+  location: location  
   tags: tags
 }
 
